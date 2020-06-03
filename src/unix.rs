@@ -107,15 +107,6 @@ impl Endpoint {
     }
 }
 
-impl Drop for Endpoint {
-    fn drop(&mut self) {
-        use std::fs;
-        if let Ok(()) = fs::remove_file(Path::new(&self.path)) {
-            log::trace!("Removed socket file at: {}", self.path)
-        }
-    }
-}
-
 /// IPC connection.
 pub struct Connection {
     inner: UnixStream,
