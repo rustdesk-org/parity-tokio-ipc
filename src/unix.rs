@@ -1,7 +1,6 @@
 use libc::chmod;
 use std::ffi::CString;
 use std::io::{self, Error};
-use futures::Stream;
 use tokio::prelude::*;
 use tokio::net::{UnixListener, UnixStream};
 use std::path::Path;
@@ -60,21 +59,31 @@ impl SecurityAttributes {
 pub struct Endpoint {
     path: String,
     security_attributes: SecurityAttributes,
-    unix_listener: Option<UnixListener>,
+}
+
+pub struct Incoming {
+    socket: UnixListener,
+}
+
+impl Incoming {
+    pub async fn next(&mut self) -> Option<io::Result<UnixStream>> {
+        match self.socket.accept().await {
+            Ok((stream, _)) => Some(Ok(stream)),
+            Err(err) => Some(Err(err))
+        }
+    }
 }
 
 impl Endpoint {
     /// Stream of incoming connections
-    pub fn incoming(&mut self) -> io::Result<impl Stream<Item = tokio::io::Result<impl AsyncRead + AsyncWrite>> + '_> {
-        self.unix_listener = Some(self.inner()?);
+    pub fn incoming(&mut self) -> io::Result<Incoming> {
         unsafe {
             // the call to bind in `inner()` creates the file
             // `apply_permission()` will set the file permissions.
             self.security_attributes.apply_permissions(&self.path)?;
         };
-        // for some unknown reason, the Incoming struct borrows the listener
-        // so we have to hold on to the listener in order to return the Incoming struct.
-        Ok(self.unix_listener.as_mut().unwrap().incoming())
+        let socket = self.inner()?;
+        Ok(Incoming { socket })
     }
 
     /// Inner platform-dependant state of the endpoint
@@ -102,7 +111,6 @@ impl Endpoint {
         Endpoint {
             path,
             security_attributes: SecurityAttributes::empty(),
-            unix_listener: None,
         }
     }
 }
