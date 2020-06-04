@@ -30,7 +30,7 @@ pub struct Endpoint {
 
 impl Endpoint {
     /// Stream of incoming connections
-    pub fn incoming(mut self) -> io::Result<impl Stream<Item = tokio::io::Result<impl AsyncRead + AsyncWrite>> + 'static> {
+    pub fn incoming(mut self) -> io::Result<Incoming> {
         let pipe = self.inner()?;
         Ok(Incoming {
             path: self.path.clone(),
