@@ -66,9 +66,9 @@ pub struct Incoming {
 }
 
 impl Incoming {
-    pub async fn next(&mut self) -> Option<io::Result<UnixStream>> {
+    pub async fn next(&mut self) -> Option<io::Result<Connection>> {
         match self.socket.accept().await {
-            Ok((stream, _)) => Some(Ok(stream)),
+            Ok((stream, _)) => Some(Ok(Connection::wrap(stream))),
             Err(err) => Some(Err(err))
         }
     }
