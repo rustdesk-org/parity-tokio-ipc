@@ -1,7 +1,7 @@
 //! Tokio IPC transport. Under the hood uses Unix Domain Sockets for Linux/Mac
 //! and Named Pipes for Windows.
 
-#![warn(missing_docs)]
+//#![warn(missing_docs)]
 //#![deny(rust_2018_idioms)]
 
 #[cfg(windows)]
