@@ -15,7 +15,7 @@ Interprocess communication library for tokio.
 futures = "0.3"
 log = "0.4"
 rand = "0.8"
-tokio = { version = "1.36", features = ["full"] }
+tokio = { version = "1.37", features = ["full"] }
 libc = "0.2"
 
 [target.'cfg(windows)'.dependencies]
